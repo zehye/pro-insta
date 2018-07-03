@@ -20,6 +20,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 print('BASE_DIR:', BASE_DIR)
 print('MEDIA_ROOT:', MEDIA_ROOT)
 
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = [
+    STATIC_DIR,
+]
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
@@ -35,9 +40,14 @@ ALLOWED_HOSTS = []
 FACEBOOK_APP_ID = '788559651351575'
 FACEBOOK_APP_SECRET_CODE = 'b040311ce6584d8e2187ee10af601d35'
 
+
 # Auth
 AUTH_USER_MODEL = 'members.User'
 LOGIN_URL = 'members:login'
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'members.backends.FacebookBackend',
+]
 
 # Application definition
 
