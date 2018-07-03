@@ -1,4 +1,9 @@
+import json
+
+import requests
+from django.conf import settings
 from django.contrib.auth import authenticate, login, get_user_model, logout
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
 from .forms import SignupForm
@@ -147,3 +152,84 @@ def follow_toggle(request):
     :param request:
     :return:
     """
+
+
+def facebook_login(request):
+    # GET parameter의 'code'
+    # request의 GET에 온 'code'값을 HttpResponse로 보여주기
+    # 이 view와 urls를 연결(주소는 redireect_uri에 있는 주소)
+
+    # 왼쪽 엑세스 코드 교환 엔드포인트에 HTTP GET요청 후,
+    # 결과, response.text값을 HttpResponse에 출력
+    code = request.GET['code']
+    url = 'https://graph.facebook.com/v3.0/oauth/access_token'
+    params = {
+        'client_id': settings.FACEBOOK_APP_ID,
+        'redirect_uri': 'http://localhost:8000/members/facebook-login/',
+        'client_secret': settings.FACEBOOK_APP_SECRET_CODE,
+        'code': code,
+    }
+    response = requests.get(url, params)
+    # 파이선에 내장된 json모듈을 사용해서 , JSON형식의 텍스트를 파이썬 object로 변환
+    # response_dict = json.loads(response.text)
+    # 위와 같은 결과값을 가지고 옴
+    response_dict = response.json()
+    access_token = response_dict['access_token']
+
+    # debug_token에 요청 보내고 결과 받기
+    # 받은 결과의 'data'값을 HttpResponse로 출력
+    #   input_token은 위의 'access_token'
+    #   access_token은 {client_id} | {client_secret} 값
+
+    url = 'https://graph.facebook.com/debug_token'
+    params = {
+        'input_token': access_token,
+        'access_token': '{}|{}'.format(
+            settings.FACEBOOK_APP_ID,
+            settings.FACEBOOK_APP_SECRET_CODE,
+        )
+    }
+    response = requests.get(url, params)
+
+    # GraphAPI의 'me'(User) 이용해서 Facebook User정보 받아오기
+    url = 'https://graph.facebook.com/v3.0/me'
+    params = {
+        'fields': ','.join([
+            'id',
+            'name',
+            'first_name',
+            'last_name',
+            'picture',
+        ]),
+        # 'fields': 'id,name,first_name,last_name,picture',
+        'access_token': access_token,
+    }
+    response = requests.get(url, params)
+    response_dict = response.json()
+
+    # 받아온 정보 중 회원가입에 필요한 요소들 꺼내기
+    facebook_user_id = response_dict['id']
+    first_name = response_dict['first_name']
+    last_name = response_dict['last_name']
+    url_img_profile = response_dict['picture']['data']['url']
+
+    # facebook_user_id가 username인 User를 기준으로 가져오거나 새로 생성
+    user, user_created = User.objects.get_or_create(
+        username=facebook_user_id,
+        defaults={
+            'first_name': first_name,
+            'last_name': last_name,
+        },
+    )
+
+    # 유저가 새로 생성되었다면
+    # get_or_create를 사용하지 않은 경우
+    # if user_created:
+    #     user.first_name = first_name
+    #     user.last_name = last_name
+    #     user.save()
+    login(request, user)
+    return redirect('index')
+
+
+    # return HttpResponse(response.text)

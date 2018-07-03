@@ -31,6 +31,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Facebook
+FACEBOOK_APP_ID = '788559651351575'
+FACEBOOK_APP_SECRET_CODE = 'b040311ce6584d8e2187ee10af601d35'
+
 # Auth
 AUTH_USER_MODEL = 'members.User'
 LOGIN_URL = 'members:login'
@@ -89,8 +93,8 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'instagram',
-        'USER': 'lhy',
+        'NAME': 'instagram2',
+        'USER': 'jihye',
         'PASSWORD': '',
         'PORT': 5432,
         'HOST': 'localhost',
