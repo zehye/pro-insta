@@ -38,7 +38,7 @@ ALLOWED_HOSTS = []
 
 # Facebook
 FACEBOOK_APP_ID = '788559651351575'
-FACEBOOK_APP_SECRET_CODE = 'b040311ce6584d8e2187ee10af601d35'
+FACEBOOK_APP_SECRET_CODE = 'b008e9e1a95349d8f8f652c375266836'
 
 
 # Auth
@@ -54,6 +54,7 @@ AUTHENTICATION_BACKENDS = [
 INSTALLED_APPS = [
     'posts.apps.PostsConfig',
     'members.apps.MembersConfig',
+    'rest_framework',
 
     'django.contrib.admin',
     'django.contrib.auth',
